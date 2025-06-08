@@ -1,0 +1,16 @@
+uvicorn
+fastapi
+pydantic-settings
+sqlmodel
+sqlalchemy
+Pillow
+PyJWT
+python-dotenv
+requests
+aiogram
+pyTelegramBotAPI
+asyncpg
+psycopg
+psycopg-binary
+numpy
+tensorflow
