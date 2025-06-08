@@ -9,6 +9,8 @@ RUN pip install --upgrade pip \
 
 RUN pip install dvc dvc-s3 python-jose
 
+RUN dvc init --no-scm
+
 EXPOSE 8080
 
 CMD ["python", "api.py"]
