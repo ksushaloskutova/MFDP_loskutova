@@ -1,28 +1,35 @@
 import numpy as np
-import torch
 import subprocess
 import os
 import tensorflow
 from tensorflow.keras.models import load_model
+from pydantic import BaseModel
+from config import logger
+from tensorflow.keras.models import Model
+from typing import Optional
 from pydantic import BaseModel
 
 
 class MLModel(BaseModel):
     model_name: str = "model_name"
     is_loaded: bool = False
+    model: Optional[Model] = None
 
-    def load_model(self, model_path: str = "./MLModel") -> None:
+    class Config:
+        arbitrary_types_allowed = True
+
+    def load_model(self, model_path: str = "./model") -> None:
         try:
-            print("Загружаем модель через DVC")
+            logger.info("Загружаем модель через DVC")
             subprocess.run(["dvc", "pull", model_path], check=True)
-
+            model_path = f"{model_path}/model.h5"
             if not os.path.exists(model_path):
                 raise FileNotFoundError(f"Модель {model_path} не найдена.")
 
-            print("Загружаем модель в память.")
+            logger.info("Загружаем модель в память.")
             self.model = load_model(model_path)
             self.is_loaded = True
-            print("Модель успешно загружена!")
+            logger.info("Модель успешно загружена!")
         except Exception as e:
             raise Exception(f"Ошибка при загрузке модели: {str(e)}")
 

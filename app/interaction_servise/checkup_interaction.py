@@ -1,14 +1,10 @@
-from object_servise.Checkup import Checkup, CheckupResponse
+from object_servise.checkup import Checkup, CheckupResponse
 from typing import List, Optional, Dict
 from datetime import date, time, timedelta
 import datetime
 from sqlalchemy import and_, func
 from collections import defaultdict
-import logging
-from sqlalchemy import text
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from config import logger
 
 def get_all_checkup(session) -> List[Checkup]:
     return session.query(Checkup).all()

@@ -1,0 +1,5 @@
+outs:
+- md5: 6b31a5d6fedf68111525d38dcfd52898.dir
+  nfiles: 7
+  hash: md5
+  path: images

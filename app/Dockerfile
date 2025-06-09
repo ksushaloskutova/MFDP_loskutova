@@ -9,7 +9,9 @@ RUN pip install --upgrade pip \
 
 RUN pip install dvc dvc-s3 python-jose
 
-RUN dvc init --no-scm
+RUN pip install python-multipart
+
+RUN pip install pika
 
 EXPOSE 8080
 

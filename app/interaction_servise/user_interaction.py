@@ -1,5 +1,5 @@
 from typing import List, Optional
-from object_servise.User import UserResponse, User
+from object_servise.user import UserResponse, User
 from database.config import get_settings
 
 

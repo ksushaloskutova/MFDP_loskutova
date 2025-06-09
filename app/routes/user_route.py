@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException, status, Depends, Request
 from database.database import get_session
 from interaction_servise import user_interaction
 from interaction_servise import token_interaction
-from object_servise.User import User, UserResponse
-from object_servise.Token import Token, TokenResponse
+from object_servise.user import User, UserResponse
+from object_servise.token import Token, TokenResponse
 from pydantic import EmailStr, ValidationError
 from fastapi import FastAPI, Query, Depends
 

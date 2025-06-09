@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from database.database import get_session
 from interaction_servise import checkup_interaction
 from interaction_servise import user_interaction
-from object_servise.Checkup import TimeRequest, CheckupResponse
+from object_servise.checkup import TimeRequest, CheckupResponse
 from fastapi import HTTPException, status
 from datetime import date, time, datetime, timedelta
 from fastapi import Depends, Query, HTTPException

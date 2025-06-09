@@ -4,9 +4,11 @@ from .config import get_settings
 from fastapi import Depends
 from interaction_servise import user_interaction as UserServise
 from interaction_servise import  checkup_interaction as CheckupServise
-from object_servise.User import User, UserResponse
-from object_servise.Token import Token
-from object_servise.Checkup import Checkup
+from interaction_servise import  ml_task_interaction as MLTaskServise
+from object_servise.user import User, UserResponse
+from object_servise.token import Token
+from object_servise.checkup import Checkup
+from object_servise.ml_task import MLTask
 
 engine = create_engine(url=get_settings().DATABASE_URL_psycopg,
                        echo=True, pool_size=5, max_overflow=10)
@@ -26,3 +28,4 @@ def init_db():
         UserServise.create_admin(session)
         UserServise.create_test_user(session)
         CheckupServise.create_checkup_test(session)
+        MLTaskServise.create_test_tsk(session)

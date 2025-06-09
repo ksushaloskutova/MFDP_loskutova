@@ -1,2 +1,5 @@
 [core]
-    no_scm = True
+    remote = bucket_final
+['remote "bucket_final"']
+    url = s3://ksenija-loskutova-rfs4334/mfdp
+    endpointurl = https://s3.lab.karpov.courses
