@@ -1,6 +1,6 @@
-from .utils import get_main_keyboard, get_main_inline_keyboard
-from app.telegram.config import THERMO_CHECK_AI_INFO
-from .autntification import start_login, start_registration, handle_logout
+from bot_handlers.utils import get_main_keyboard, get_main_inline_keyboard
+from config import THERMO_CHECK_AI_INFO
+from bot_handlers.autntification import start_login, start_registration, handle_logout
 
 
 def setup_menu_handlers(bot):

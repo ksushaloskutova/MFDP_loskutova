@@ -1,7 +1,4 @@
-from apscheduler.schedulers.background import BackgroundScheduler
-from app.telegram.bot_instance import bot
-
-
+from bot_instance import bot
 from apscheduler.schedulers.background import BackgroundScheduler
 import functools
 

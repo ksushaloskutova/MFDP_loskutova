@@ -1,8 +1,7 @@
 import requests
-from telebot import types
-from app.telegram.config import API_URL, logger
-from app.telegram.bot_instance import bot
-from .utils import auth_required, get_booking_keyboard
+from config import API_URL, logger
+from bot_instance import bot
+from bot_handlers.utils import auth_required, get_booking_keyboard
 
 def start_registration(message):
     msg = bot.send_message(message.chat.id, "Введите ваш email:")

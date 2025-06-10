@@ -34,9 +34,13 @@ class MLModel(BaseModel):
             raise Exception(f"Ошибка при загрузке модели: {str(e)}")
 
 
-    def predict(self, image_array: np.ndarray) -> tuple[float, int]:
+    def predict(self, image_array: np.ndarray) -> str:
         if not self.is_loaded:
             raise Exception("Модель не загружена")
         y_prob = self.model.predict(image_array)
         y_pred = (y_prob > 0.5).astype(int)
-        return y_prob, y_pred
+        confidence = y_prob[0][0]  # первое значение из первого массива
+        label = y_pred[0][0]  # первое значение из второго массива
+
+        formatted_result = f"Confidence: {confidence:.4f}, Label: {label}"
+        return formatted_result

@@ -1,12 +1,12 @@
 import datetime
 import requests
-from app.telegram.config import API_URL, logger
+from config import API_URL
 from telebot import types
 from datetime import datetime, timedelta
-from app.telegram.bot_instance import bot
-from app.telegram.config import logger
-from .utils import auth_required
-from .sheduler import init_scheduler_checkup
+from bot_instance import bot
+from config import logger
+from bot_handlers.utils import auth_required
+from bot_handlers.sheduler import init_scheduler_checkup
 
 
 def setup_time_slots_handlers(bot_instance):

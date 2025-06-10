@@ -1,6 +1,6 @@
-from .utils import auth_required
+from bot_handlers.utils import auth_required
 from telebot import types
-from app.telegram.bot_instance import bot
+from bot_instance import bot
 
 
 @bot.message_handler(commands=['secret'])

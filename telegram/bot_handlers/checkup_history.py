@@ -1,10 +1,6 @@
-import datetime
 import requests
-from app.telegram.config import API_URL, logger
-from telebot import types
-from datetime import datetime, timedelta
-from app.telegram.bot_instance import bot
-from .utils import auth_required, get_booking_keyboard
+from config import API_URL, logger
+from bot_handlers.utils import auth_required, get_booking_keyboard
 
 def check_my_checkup_records(bot_instance):
     @bot_instance.callback_query_handler(func=lambda call: call.data == 'my_checkup_now')

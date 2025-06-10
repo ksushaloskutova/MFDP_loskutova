@@ -54,7 +54,6 @@ def send_task_to_queue(image_data: Image.Image, task_add):
         connection.close()
         logger.info("Соединение закрыто")
 
-
 def consume_tasks(model):
     connection, channel = create_connection(QUEUE_NAME)
     if not connection or not channel:
@@ -74,6 +73,9 @@ def consume_tasks(model):
             task_add = MLTaskAdd(task_id=task_id, password=password)
             task = MLTaskServise.create_task(task_add, model, image, session)
             logger.info(f"Задача {task} создана")
+
+            # Поставить задачу уведомления в очередь
+            notification_message = f"Задача {task_id} успешно обработана"
             ch.basic_ack(delivery_tag=method.delivery_tag)
             logger.info(f"Задача {task_id} обработана и подтверждена")
         except Exception as e:

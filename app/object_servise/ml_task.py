@@ -190,6 +190,9 @@ class MLTask(SQLModel, table=True):
     def delete_image_after_load(self, input_data_path: str, directory_path: str ="images") -> None:
         delete_images_in_directory(directory_path)
 
+    # def interpretate_result(self) -> str:
+    #     delete_images_in_directory(directory_path)
+
 
 
 

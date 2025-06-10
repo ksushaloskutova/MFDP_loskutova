@@ -1,8 +1,8 @@
 from telebot import types
 from functools import wraps
 import requests
-from app.telegram.config import logger, API_URL
-from app.telegram.bot_instance import bot
+from config import logger, API_URL
+from bot_instance import bot
 
 def get_main_keyboard():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
