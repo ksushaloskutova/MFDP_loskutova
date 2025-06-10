@@ -1,7 +1,7 @@
-pyTelegramBotAPI
-requests
-aiogram
-apscheduler
-Pillow
+pyTelegramBotAPI==4.27.0
+requests==2.32.3
+aiogram==3.20.0
+APScheduler==3.11.0
+pillow==11.2.1
 
 
