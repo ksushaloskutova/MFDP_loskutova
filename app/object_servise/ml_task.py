@@ -166,11 +166,11 @@ class MLTask(SQLModel, table=True):
 
     def load_images(self, directory_path: str ="images") -> Image.Image:
         try:
-            data_path = f"{self.task_id}.jpg"
+            data_path = f"{directory_path}/{self.task_id}.jpg"
             result = subprocess.run(["dvc", "pull", directory_path], check=False)
             if result.returncode != 0:
                 raise Exception("Ошибка при выполнении dvc pull.")
-            print("dvc pull папки с изображениями")
+            logger.info("dvc pull папки с изображениями")
 
             if not os.path.exists(data_path):
                 raise FileNotFoundError(f"Картинка {data_path} не найдена.")

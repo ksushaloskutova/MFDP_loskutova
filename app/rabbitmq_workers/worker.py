@@ -63,22 +63,21 @@ def consume_tasks(model):
 
     def callback(ch, method, properties, body):
         logger.info("Получено сообщение...")
-        while True:
-            try:
-                data = json.loads(body)
-                logger.info(f"Данные: {data}")
+        try:
+            data = json.loads(body)
+            logger.info(f"Данные: {data}")
 
-                task_id = data.get('task_id')
-                password = data.get('password')
-                img_bytes = bytes.fromhex(data["image"])
-                image = Image.open(io.BytesIO(img_bytes))
-                task_add = MLTaskAdd(task_id=task_id, password=password)
-                task = MLTaskServise.create_task(task_add, model, image, session)
-                logger.info(f"Задача {task} создана")
-                ch.basic_ack(delivery_tag=method.delivery_tag)
-                logger.info(f"Задача {task_id} обработана и подтверждена")
-            except Exception as e:
-                logger.error(f"Ошибка при обработке сообщения: {e}")
+            task_id = data.get('task_id')
+            password = data.get('password')
+            img_bytes = bytes.fromhex(data["image"])
+            image = Image.open(io.BytesIO(img_bytes))
+            task_add = MLTaskAdd(task_id=task_id, password=password)
+            task = MLTaskServise.create_task(task_add, model, image, session)
+            logger.info(f"Задача {task} создана")
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+            logger.info(f"Задача {task_id} обработана и подтверждена")
+        except Exception as e:
+            logger.error(f"Ошибка при обработке сообщения: {e}")
 
     try:
         channel.basic_qos(prefetch_count=1)

@@ -52,6 +52,7 @@ async def retrieve_task_result(
         )
     # Загружаем изображение
     image = task.load_images()
+    task.delete_image_after_load()
     if not image:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
