@@ -10,6 +10,7 @@ from interaction_servise import user_interaction as  UserServise
 from interaction_servise import ml_task_interaction as  MLTaskServise
 from config import logger
 from rabbitmq_workers import worker as Worker
+from fastapi import Query
 
 # from rabbitmq_workers import worker as Worker
 
@@ -29,37 +30,47 @@ async def retrieve_all_tasks(session = Depends(get_session)) -> List[MLTask]:
     return MLTaskServise.get_all_tasks(session = session)
 
 
-@ml_task_router.get("/{id}", response_model=MLTask)
-async def retrieve_task(id: int, password: str, session = Depends(get_session)) -> MLTask:
-    task = MLTaskServise.get_task_by_id(id, session)
-    if not task:
-        raise HTTPException(status_code=status. HTTP_404_NOT_FOUND, detail="Task with supplied ID does not exist")
-    if MLTaskServise.password_verify(task, password):
-        return task
-    else:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Password problem")
+from io import BytesIO
 
-
-# @mltask_router.get("/task_result/image/{task_id}")
-# async def retrieve_task_result(task_id: str, session = Depends(get_session)):
-#     task = MLTaskServise.get_task_by_task_id(task_id, session)
-#     if (task==None):
-#         raise HTTPException(status_code=status. HTTP_404_NOT_FOUND, detail="Task with supplied task_id does not exist")
-#     image = task.load_images(input_data_path  = task.input_data_path)
-#     if not image:
-#         raise HTTPException(status_code=status. HTTP_404_NOT_FOUND, detail="I can't upload the image")
-#     img_byte_arr = io.BytesIO()
-#     image.save(img_byte_arr, format='JPEG')  # Или другой формат, если необходимо
-#     img_byte_arr.seek(0)
-#     task.delete_image_after_load(input_data_path  = task.input_data_path)
-#     return StreamingResponse(img_byte_arr, media_type="image/jpeg")
-
-@ml_task_router.get("/task_result/description/{id}")
-async def retrieve_task_id(task_id: str, session = Depends(get_session)) -> dict:
+@ml_task_router.get("/{task_id}")  # Используем параметр пути
+async def retrieve_task_result(
+    task_id: str,  # Параметр пути (не Query)
+    password: str = Query(..., description="Password for the task"),  # Параметр запроса
+    session = Depends(get_session)
+):
+    # Получаем задачу из базы данных
     task = MLTaskServise.get_task_by_task_id(task_id, session)
-    if (task==None):
-        raise HTTPException(status_code=status. HTTP_404_NOT_FOUND, detail="Task with supplied task_id does not exist")
-    return {"description": task.result}
+    if task is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task with supplied task_id does not exist"
+        )
+    if not (MLTaskServise.password_verify(task, password)):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="the password is incorrect"
+        )
+    # Загружаем изображение
+    image = task.load_images()
+    if not image:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="I can't upload the image"
+        )
+
+    # Подготавливаем изображение для отправки
+    img_byte_arr = BytesIO()
+    image.save(img_byte_arr, format='JPEG')  # Или другой формат
+    img_byte_arr.seek(0)
+
+    # Возвращаем JSON с результатом и изображением в base64
+    return {
+        "result": task.result,
+        "image": base64.b64encode(img_byte_arr.getvalue()).decode('utf-8'),
+        "task_id": task_id,
+        "status": "completed"
+    }
+
 
 #Функция создания MLTask: проверка баланса, передача работы в Worker(отслеживает),
 #передача клиенту id task

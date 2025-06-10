@@ -15,7 +15,7 @@ app = FastAPI()
 app.include_router(home_route)
 app.include_router(user_route, prefix = "/user")
 app.include_router(checkup_route, prefix = "/checkup")
-app.include_router(ml_task_router, prefix = "/mltask")
+app.include_router(ml_task_router, prefix = "/ml_task")
 
 origins = ["*"]
 app.add_middleware(

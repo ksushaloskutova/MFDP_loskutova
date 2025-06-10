@@ -2,5 +2,6 @@ pyTelegramBotAPI
 requests
 aiogram
 apscheduler
+Pillow
 
 

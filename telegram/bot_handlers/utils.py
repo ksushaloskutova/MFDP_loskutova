@@ -33,7 +33,21 @@ def get_booking_keyboard():
         text="Посмотреть текущую запись",
         callback_data="my_checkup_now"
     )
+    btn3 = types.InlineKeyboardButton(
+        text="Отправить снимок",
+        callback_data="give_image"
+    )
     markup.add(btn1, btn2)
+    markup.add(btn3)
+    return markup
+
+def get_task_keyboard():
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(
+        text="Получить результат и изображение",
+        callback_data="get_task"
+    )
+    markup.add(btn1)
     return markup
 
 def auth_required(func):

@@ -105,16 +105,10 @@ class MLTaskAdd(SQLModel, table=True):
             # Создаем директорию, если её нет
             os.makedirs(directory_path, exist_ok=True)
 
-            # Получаем расширение из исходного формата или используем .jpg по умолчанию
-            file_extension = input_data.format.lower() if input_data.format else 'jpg'
-            valid_extensions = {'jpeg', 'jpg', 'png', 'webp'}
-            if file_extension not in valid_extensions:
-                file_extension = 'jpg'
-
-            logger.info(f"Сохраняем изображение в формате: {file_extension}")
+            logger.info(f"Сохраняем изображение в формате: jpg")
 
             # Формируем полный путь с расширением
-            image_path = f"{directory_path}/{self.task_id}.{file_extension}"
+            image_path = f"{directory_path}/{self.task_id}.jpg"
 
             # Выполняем DVC pull
             result = subprocess.run(["dvc", "pull", directory_path], check=False, capture_output=True, text=True)
@@ -126,10 +120,10 @@ class MLTaskAdd(SQLModel, table=True):
                 input_data = input_data.convert('RGB')
 
             # Сохраняем изображение с явным указанием формата
-            input_data.save(image_path, format=file_extension.upper())  # Используем верхний регистр для формата JPG
+            input_data.save(image_path, format="JPEG")  # Используем верхний регистр для формата JPG
 
             # Добавляем в DVC
-            result = subprocess.run(["dvc", "add", image_path], check=False, capture_output=True, text=True)
+            result = subprocess.run(["dvc", "add", directory_path], check=False, capture_output=True, text=True)
             if result.returncode != 0:
                 raise Exception(f"DVC add failed: {result.stderr}")
 
@@ -187,11 +181,9 @@ class MLTask(SQLModel, table=True):
         except Exception as e:
             raise Exception(f"Ошибка при загрузке картинки: {str(e)}")
 
-    def delete_image_after_load(self, input_data_path: str, directory_path: str ="images") -> None:
+    def delete_image_after_load(self, directory_path: str ="images") -> None:
         delete_images_in_directory(directory_path)
 
-    # def interpretate_result(self) -> str:
-    #     delete_images_in_directory(directory_path)
 
 
 

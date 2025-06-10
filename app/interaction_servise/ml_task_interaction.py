@@ -13,6 +13,7 @@ def get_task_by_id(id: int, session) -> Optional[List[MLTask]]:
     if task:
         return task
     return None
+
 def get_task_by_task_id(task_id: str, session) -> Optional[MLTask]:
     task= session.query(MLTask).filter(MLTask.task_id == task_id).first()
     return task if task else None
