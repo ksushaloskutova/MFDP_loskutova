@@ -6,8 +6,10 @@ from sqlalchemy import and_, func
 from collections import defaultdict
 from config import logger
 
+
 def get_all_checkup(session) -> List[Checkup]:
     return session.query(Checkup).all()
+
 
 def get_all_checkup_by_time_place(session, target_date: date, hour_range: tuple[int, int], place: int) -> Optional[List[
     Checkup]]:
@@ -69,8 +71,10 @@ def get_available_time_slots(
 
     return free_slots
 
+
 def get_last_checkup(session) -> Optional[Checkup]:
     return session.query(Checkup).order_by(Checkup.id.desc()).first()
+
 
 def get_checkup_by_login(login: str, session) -> Optional[List[Checkup]]:
     checkups = session.query(Checkup).filter(Checkup.login == login).all()
@@ -88,12 +92,12 @@ def get_checkup_last_by_login(login: str, session) -> Optional[dict]:
         # Используем ORM вместо raw SQL
         checkup = (
             session.query(Checkup)
-            ).filter(
-                Checkup.login == login,
-                Checkup.status.in_(["record", "finished"])
-            ).order_by(
-                Checkup.id.desc()
-            ).first()
+        ).filter(
+            Checkup.login == login,
+            Checkup.status.in_(["record", "finished"])
+        ).order_by(
+            Checkup.id.desc()
+        ).first()
         if not checkup:
             return {"result": "not_checkups"}
         return {"result": checkup}
@@ -112,6 +116,7 @@ def write_checkup(new_checkup: Checkup, session) -> None:
     session.commit()
     session.refresh(new_checkup)
 
+
 def check_time_available(time_to_check: datetime.datetime, place: int, session):
     existing = session.query(Checkup).filter(
         Checkup.checkup_time == time_to_check,
@@ -122,15 +127,17 @@ def check_time_available(time_to_check: datetime.datetime, place: int, session):
     else:
         return True
 
-def check_login_available(time_check: datetime.datetime, login:str, session):
+
+def check_login_available(time_check: datetime.datetime, login: str, session):
     last_checkup = get_checkup_last_by_login(login, session)
     result = last_checkup['result']
-    if result =="not_checkups":
+    if result == "not_checkups":
         return True
     logger.info(f"result: {result}")
     last_time = result.checkup_time
     six_months_later = last_time + timedelta(days=180)  # ~6 месяцев
     return time_check >= six_months_later
+
 
 def create_checkup(data: CheckupResponse, session) -> Optional[Checkup]:
     new_checkup = (Checkup(login=data.login, checkup_time=data.checkup_time, place=data.place, status="record"))
@@ -139,9 +146,11 @@ def create_checkup(data: CheckupResponse, session) -> Optional[Checkup]:
     write_checkup(new_checkup, session)
     return new_checkup
 
+
 def delete_all_checkup(session) -> None:
     session.query(Checkup).delete()
     session.commit()
+
 
 def delete_checkup_by_id(id: int, session) -> bool:
     checkup = session.get(Checkup, id)
@@ -163,6 +172,7 @@ def update_checkup_status(
         session.commit()  # Сохраняем изменения
         return True
     return False
+
 
 def create_checkup_test(session) -> Optional[Checkup]:
     new_checkup = (Checkup(login="testov@mail.ru", checkup_time=datetime.datetime.now(), place=2, status="record"))

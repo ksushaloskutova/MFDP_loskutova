@@ -14,8 +14,32 @@ def get_task_by_id(id: int, session) -> Optional[List[MLTask]]:
         return task
     return None
 
+
+def format_prediction_result(raw_result: str) -> str:
+    try:
+        # Парсим результат
+        parts = raw_result.split(',')
+        confidence = float(parts[0].split(':')[1].strip())
+        label = int(parts[1].split(':')[1].strip())
+
+        # Форматируем вывод
+        if label == 0:
+            message = (f"На полученном термографическом снимке отклонений не обнаружено. Однако оборудование не "
+                       f"является медицинским. Поэтому просим Вас соблюдать рекомендации по профилактике рака "
+                       f"молочной железы")
+        else:
+            message = (f"На полученном термографическом снимке обнаружены отклонения от нормы. Вам необходимо "
+                       f"записаться к врачу для более точной диагностики. Данное оборудование не является "
+                       f"медицинским, могут возникать неточности. Поэтому просим Вас соблюдать спокойствие и пройти "
+                       f"дальнейшее обследование.")
+        return message
+
+    except Exception as e:
+        logger.error(f"Ошибка форматирования результата: {str(e)}")
+        return "Ошибка обработки результата"
+
 def get_task_by_task_id(task_id: str, session) -> Optional[MLTask]:
-    task= session.query(MLTask).filter(MLTask.task_id == task_id).first()
+    task = session.query(MLTask).filter(MLTask.task_id == task_id).first()
     return task if task else None
 
 def password_verify(task: MLTask, password: str):

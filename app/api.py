@@ -30,10 +30,6 @@ app.add_middleware(
 @app.on_event("startup")
 def on_startup():
     init_db()
-    model = MLModel()
-    model.load_model()
-    threading.Thread(target=WorkerServise.consume_tasks, args=(model,), daemon=True).start()
-
 
 if __name__== "__main__":
     uvicorn.run("api:app", host= "0.0.0.0", port = 8080, reload = True)

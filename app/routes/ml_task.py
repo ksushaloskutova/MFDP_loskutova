@@ -63,10 +63,10 @@ async def retrieve_task_result(
     img_byte_arr = BytesIO()
     image.save(img_byte_arr, format='JPEG')  # Или другой формат
     img_byte_arr.seek(0)
-
+    message = MLTaskServise.format_prediction_result(task.result)
     # Возвращаем JSON с результатом и изображением в base64
     return {
-        "result": task.result,
+        "result": message,
         "image": base64.b64encode(img_byte_arr.getvalue()).decode('utf-8'),
         "task_id": task_id,
         "status": "completed"

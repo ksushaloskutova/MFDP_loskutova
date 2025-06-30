@@ -1,9 +1,7 @@
 import numpy as np
 import subprocess
 import os
-import tensorflow
 from tensorflow.keras.models import load_model
-from pydantic import BaseModel
 from config import logger
 from tensorflow.keras.models import Model
 from typing import Optional

@@ -1,5 +1,10 @@
 import os
 from dotenv import load_dotenv
+import logging
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 

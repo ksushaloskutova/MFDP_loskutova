@@ -9,7 +9,7 @@ from object_servise.ml_task import MLTaskAdd
 from interaction_servise import ml_task_interaction as MLTaskServise
 from database.database import session
 from rabbitmq_workers.config import RABBITMQ_USER, RABBITMQ_PASSWORD, RABBITMQ_HOST, RABBITMQ_PORT, QUEUE_NAME
-from fastapi import Depends
+
 
 def create_connection(queue_name):
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
