@@ -5,13 +5,12 @@ from tensorflow.keras.models import load_model
 from config import logger
 from tensorflow.keras.models import Model
 from typing import Optional
-from pydantic import BaseModel
 
-
-class MLModel(BaseModel):
-    model_name: str = "model_name"
-    is_loaded: bool = False
-    model: Optional[Model] = None
+class MLModel:
+    def __init__(self, model_name="model_name"):
+        self.model_name = model_name
+        self.is_loaded = False
+        self.model = None
 
     class Config:
         arbitrary_types_allowed = True
