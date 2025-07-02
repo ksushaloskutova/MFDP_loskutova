@@ -1,12 +1,14 @@
-from object_servise.ml_task import MLTask, MLTaskAdd
 from typing import List, Optional
+
+from config import logger
+from object_servise.ml_model import MLModel
+from object_servise.ml_task import MLTask, MLTaskAdd
 from PIL import Image
 
-from object_servise.ml_model import MLModel
-from config import logger
 
 def get_all_tasks(session) -> List[MLTask]:
     return session.query(MLTask).all()
+
 
 def get_task_by_id(id: int, session) -> Optional[List[MLTask]]:
     task = session.get(MLTask, id)
@@ -19,28 +21,33 @@ def format_prediction_result(raw_result: str) -> str:
     try:
         # Парсим результат
         parts = raw_result.split(',')
-        confidence = float(parts[0].split(':')[1].strip())
         label = int(parts[1].split(':')[1].strip())
 
         # Форматируем вывод
         if label == 0:
-            message = (f"На полученном термографическом снимке отклонений не обнаружено. Однако оборудование не "
-                       f"является медицинским. Поэтому просим Вас соблюдать рекомендации по профилактике рака "
-                       f"молочной железы")
+            message = (
+                "На полученном термографическом снимке отклонений не обнаружено. Однако оборудование не "
+                "является медицинским. Поэтому просим Вас соблюдать рекомендации по профилактике рака "
+                "молочной железы"
+            )
         else:
-            message = (f"На полученном термографическом снимке обнаружены отклонения от нормы. Вам необходимо "
-                       f"записаться к врачу для более точной диагностики. Данное оборудование не является "
-                       f"медицинским, могут возникать неточности. Поэтому просим Вас соблюдать спокойствие и пройти "
-                       f"дальнейшее обследование.")
+            message = (
+                "На полученном термографическом снимке обнаружены отклонения от нормы. Вам необходимо "
+                "записаться к врачу для более точной диагностики. Данное оборудование не является "
+                "медицинским, могут возникать неточности. Поэтому просим Вас соблюдать спокойствие и пройти "
+                "дальнейшее обследование."
+            )
         return message
 
     except Exception as e:
         logger.error(f"Ошибка форматирования результата: {str(e)}")
         return "Ошибка обработки результата"
 
+
 def get_task_by_task_id(task_id: str, session) -> Optional[MLTask]:
     task = session.query(MLTask).filter(MLTask.task_id == task_id).first()
     return task if task else None
+
 
 def password_verify(task: MLTask, password: str):
     return task.verify_password(password)
@@ -64,7 +71,9 @@ def form_task(question: MLTaskAdd, model: MLModel, input_data: Image.Image) -> M
         return None  # Возврат None при неудаче валидации
 
 
-def create_task(question: MLTaskAdd, model: MLModel, input_data: Image.Image, session) -> dict:
+def create_task(
+    question: MLTaskAdd, model: MLModel, input_data: Image.Image, session
+) -> dict:
     try:
         task = form_task(question, model, input_data)
         if task is None:

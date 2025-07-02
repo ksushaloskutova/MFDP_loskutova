@@ -1,13 +1,12 @@
-from object_servise.ml_model import MLModel
+import os
 import threading
-from rabbitmq_workers import worker as WorkerServise
 import time
 
-import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Отключает GPU
-
-# Для TensorFlow
 import tensorflow as tf
+from object_servise.ml_model import MLModel
+from rabbitmq_workers import worker as WorkerServise
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'  # Отключает GPU
 tf.config.set_visible_devices([], 'GPU')
 
 
@@ -16,9 +15,7 @@ if __name__ == "__main__":
     model.load_model()
 
     worker_thread = threading.Thread(
-        target=WorkerServise.consume_tasks,
-        args=(model,),
-        daemon=True
+        target=WorkerServise.consume_tasks, args=(model,), daemon=True
     )
     worker_thread.start()
 

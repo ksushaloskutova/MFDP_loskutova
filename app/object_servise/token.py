@@ -1,12 +1,11 @@
-from sqlmodel import SQLModel, Field
+import logging
+import os
 from datetime import datetime, timedelta, timezone
 
-from pydantic import BaseModel
 import jwt
-import os
 from dotenv import load_dotenv
-
-import logging
+from pydantic import BaseModel
+from sqlmodel import Field, SQLModel
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,13 +25,16 @@ class Token(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     chat_id: str
     token: str
+
     def __init__(self, chat_id, login) -> None:
         self.chat_id = chat_id
         self.token = self.encode_token(login)
 
     def encode_token(self, login):
         to_encode = {"login": login}
-        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(
+            minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        )
 
         # Храним expire как UNIX-время
         to_encode.update({"expire": int(expire.timestamp())})

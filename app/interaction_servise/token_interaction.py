@@ -1,8 +1,7 @@
-from datetime import datetime, timedelta, timezone
-from typing import List, Optional
-from object_servise.token import Token
-from typing import Optional
 import logging
+from typing import List, Optional
+
+from object_servise.token import Token
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -10,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 def get_token_by_chat_id(chat_id: str, session) -> Optional[Token]:
     return session.query(Token).filter(Token.chat_id == chat_id).first()
+
 
 def create_access_token(data: dict, session):
     login = data["login"]
@@ -22,6 +22,7 @@ def create_access_token(data: dict, session):
         session.add(token_table)
     session.commit()
     return token_table.token
+
 
 def delete_token(data: dict, session):
     try:
@@ -38,7 +39,9 @@ def delete_token(data: dict, session):
 
     except Exception as e:
         session.rollback()  # Откатываем изменения при ошибке
-        logger.error(f"Ошибка при удалении токена для chat_id {data.get('chat_id')}: {str(e)}")
+        logger.error(
+            f"Ошибка при удалении токена для chat_id {data.get('chat_id')}: {str(e)}"
+        )
         raise  # Пробрасываем исключение дальше
 
 
@@ -51,10 +54,6 @@ def verify_token(chat_id: str, session):
             return login
     return None
 
+
 def get_all_tokens(session) -> Optional[List[Token]]:
     return session.query(Token).all()
-
-
-
-
-

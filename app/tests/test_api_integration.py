@@ -1,11 +1,11 @@
-import pytest
-from fastapi.testclient import TestClient
 from io import BytesIO
-from PIL import Image
+
 from api import app
-import io
+from fastapi.testclient import TestClient
+from PIL import Image
 
 client = TestClient(app)
+
 
 def create_test_image():
     # Создает простое черное изображение 224x224 JPEG
@@ -15,6 +15,7 @@ def create_test_image():
     buf.seek(0)
     return buf
 
+
 def test_predict_and_result_flow(monkeypatch):
     """
     Тестирует полный цикл: отправка изображения на /ml_task/ и получение результата с /ml_task/{task_id}
@@ -22,11 +23,13 @@ def test_predict_and_result_flow(monkeypatch):
 
     # Заглушка для send_task_to_queue, чтобы не слать в RabbitMQ
     from rabbitmq_workers import worker as Worker
+
     monkeypatch.setattr(Worker, "send_task_to_queue", lambda image, task_add: None)
 
     # Мокаем получение задачи из БД и изображение
-    from interaction_servise import ml_task_interaction
     from types import SimpleNamespace
+
+    from interaction_servise import ml_task_interaction
 
     dummy_image = create_test_image()
 
@@ -38,14 +41,12 @@ def test_predict_and_result_flow(monkeypatch):
             password="testpassword",
             result="positive",
             load_images=lambda: dummy_image,
-            delete_image_after_load=lambda: None
-        )
+            delete_image_after_load=lambda: None,
+        ),
     )
 
     monkeypatch.setattr(
-        ml_task_interaction,
-        "password_verify",
-        lambda task, password: True
+        ml_task_interaction, "password_verify", lambda task, password: True
     )
 
     files = {"file": ("test.jpg", dummy_image, "image/jpeg")}

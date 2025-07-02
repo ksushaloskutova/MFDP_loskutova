@@ -1,18 +1,20 @@
-from object_servise.checkup import Checkup, CheckupResponse
-from typing import List, Optional, Dict
-from datetime import date, time, timedelta
 import datetime
-from sqlalchemy import and_, func
-from collections import defaultdict
+from datetime import date, time, timedelta
+from typing import List, Optional
+
 from config import logger
+from object_servise.checkup import Checkup, CheckupResponse
+from sqlalchemy import and_
+from sqlalchemy.exc import SQLAlchemyError
 
 
 def get_all_checkup(session) -> List[Checkup]:
     return session.query(Checkup).all()
 
 
-def get_all_checkup_by_time_place(session, target_date: date, hour_range: tuple[int, int], place: int) -> Optional[List[
-    Checkup]]:
+def get_all_checkup_by_time_place(
+    session, target_date: date, hour_range: tuple[int, int], place: int
+) -> Optional[List[Checkup]]:
     start_hour, end_hour = hour_range
 
     # Если end_hour превышает 23, то устанавливаем его на 23
@@ -21,39 +23,52 @@ def get_all_checkup_by_time_place(session, target_date: date, hour_range: tuple[
 
     # Определяем начальный и конечный datetime
     start_datetime = datetime.datetime.combine(target_date, time(start_hour))
-    end_datetime = datetime.datetime.combine(target_date, time(end_hour, 0, 0)) + timedelta(seconds=59)
+    end_datetime = datetime.datetime.combine(
+        target_date, time(end_hour, 0, 0)
+    ) + timedelta(seconds=59)
 
-    return session.query(Checkup).filter(
-        and_(
-            Checkup.checkup_time >= start_datetime,
-            Checkup.checkup_time <= end_datetime,
-            Checkup.status == 'record',
-            Checkup.place == place
+    return (
+        session.query(Checkup)
+        .filter(
+            and_(
+                Checkup.checkup_time >= start_datetime,
+                Checkup.checkup_time <= end_datetime,
+                Checkup.status == 'record',
+                Checkup.place == place,
+            )
         )
-    ).all()
+        .all()
+    )
 
 
 def get_available_time_slots(
-        session,
-        target_date: date,
-        hour_range: tuple[int, int],
-        place: int,
-        procedure_duration: timedelta = timedelta(minutes=15)
+    session,
+    target_date: date,
+    hour_range: tuple[int, int],
+    place: int,
+    procedure_duration: timedelta = timedelta(minutes=15),
 ) -> List[time]:
     """Возвращает доступные временные слоты для записи"""
     # Получаем все занятые записи
-    booked_checkups = get_all_checkup_by_time_place(session, target_date, hour_range, place)
+    booked_checkups = get_all_checkup_by_time_place(
+        session, target_date, hour_range, place
+    )
     logger.info(f"get_all_checkup_by_time: {booked_checkups}")
     # Создаем множество занятых слотов
     booked_slots = set()
     for checkup in booked_checkups:
         start_time = checkup.checkup_time.time()
-        end_time = (datetime.datetime.combine(date.min, start_time) + procedure_duration).time()
+        end_time = (
+            datetime.datetime.combine(date.min, start_time) + procedure_duration
+        ).time()
 
         current_time = start_time
         while current_time < end_time:
             booked_slots.add(current_time)
-            current_time = (datetime.datetime.combine(date.min, current_time) + timedelta(minutes=15)).time()
+            current_time = (
+                datetime.datetime.combine(date.min, current_time)
+                + timedelta(minutes=15)
+            ).time()
 
     # Генерируем все возможные слоты
     start_hour, end_hour = hour_range
@@ -63,7 +78,9 @@ def get_available_time_slots(
 
     while current_time <= end_time:
         all_slots.append(current_time)
-        current_time = (datetime.datetime.combine(date.min, current_time) + timedelta(minutes=15)).time()
+        current_time = (
+            datetime.datetime.combine(date.min, current_time) + timedelta(minutes=15)
+        ).time()
 
     logger.info(f"all slots:{all_slots}")
     # Фильтруем свободные слоты
@@ -81,23 +98,15 @@ def get_checkup_by_login(login: str, session) -> Optional[List[Checkup]]:
     return checkups if checkups else None
 
 
-from sqlalchemy.exc import SQLAlchemyError
-
-from sqlalchemy.exc import SQLAlchemyError
-from typing import Optional
-
-
 def get_checkup_last_by_login(login: str, session) -> Optional[dict]:
     try:
         # Используем ORM вместо raw SQL
         checkup = (
-            session.query(Checkup)
-        ).filter(
-            Checkup.login == login,
-            Checkup.status.in_(["record", "finished"])
-        ).order_by(
-            Checkup.id.desc()
-        ).first()
+            (session.query(Checkup))
+            .filter(Checkup.login == login, Checkup.status.in_(["record", "finished"]))
+            .order_by(Checkup.id.desc())
+            .first()
+        )
         if not checkup:
             return {"result": "not_checkups"}
         return {"result": checkup}
@@ -118,10 +127,14 @@ def write_checkup(new_checkup: Checkup, session) -> None:
 
 
 def check_time_available(time_to_check: datetime.datetime, place: int, session):
-    existing = session.query(Checkup).filter(
-        Checkup.checkup_time == time_to_check,
-        Checkup.place == place  # Добавляем фильтр по месту
-    ).first()
+    existing = (
+        session.query(Checkup)
+        .filter(
+            Checkup.checkup_time == time_to_check,
+            Checkup.place == place,  # Добавляем фильтр по месту
+        )
+        .first()
+    )
     if existing:
         return False
     else:
@@ -140,7 +153,12 @@ def check_login_available(time_check: datetime.datetime, login: str, session):
 
 
 def create_checkup(data: CheckupResponse, session) -> Optional[Checkup]:
-    new_checkup = (Checkup(login=data.login, checkup_time=data.checkup_time, place=data.place, status="record"))
+    new_checkup = Checkup(
+        login=data.login,
+        checkup_time=data.checkup_time,
+        place=data.place,
+        status="record",
+    )
     logger.info(f"new_checkup{new_checkup}")
     write_checkup(new_checkup, session)
     write_checkup(new_checkup, session)
@@ -162,9 +180,7 @@ def delete_checkup_by_id(id: int, session) -> bool:
 
 
 def update_checkup_status(
-        id: int,
-        session,
-        new_status: str  # Новый статус для установки
+    id: int, session, new_status: str  # Новый статус для установки
 ) -> bool:
     checkup = session.get(Checkup, id)
     if checkup:
@@ -175,7 +191,12 @@ def update_checkup_status(
 
 
 def create_checkup_test(session) -> Optional[Checkup]:
-    new_checkup = (Checkup(login="testov@mail.ru", checkup_time=datetime.datetime.now(), place=2, status="record"))
+    new_checkup = Checkup(
+        login="testov@mail.ru",
+        checkup_time=datetime.datetime.now(),
+        place=2,
+        status="record",
+    )
     logger.info(f"new_checkup{new_checkup}")
     write_checkup(new_checkup, session)
     write_checkup(new_checkup, session)

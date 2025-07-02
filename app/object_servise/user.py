@@ -1,17 +1,16 @@
-from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List
 import hashlib
 import os
 import re
-from fastapi import Request
-from typing import Optional, List
+from typing import Optional
+
 from pydantic import BaseModel
+from sqlmodel import Field, SQLModel
+
 
 class UserResponse(BaseModel):
     login: str
     password: str
     chat_id: Optional[str] = ""
-
 
     def check_password(self):
         if len(self.password) < 6:
@@ -39,7 +38,7 @@ class User(SQLModel, table=True):
     hash_password: str = Field(default=None)
     role: str
 
-    def __init__(self, user: UserResponse, role:str ="user") -> None:
+    def __init__(self, user: UserResponse, role: str = "user") -> None:
         self.login = user.login
         self.hash_password = self.__password_hashing(user.password)
         self.role = role
@@ -52,5 +51,7 @@ class User(SQLModel, table=True):
     def verify_password(self, provided_password: str) -> bool:
         salt = bytes.fromhex(self.hash_password[:32])
         stored_hash = self.hash_password[32:]
-        pwd_hash = hashlib.pbkdf2_hmac('sha256', provided_password.encode(), salt, 100000)
+        pwd_hash = hashlib.pbkdf2_hmac(
+            'sha256', provided_password.encode(), salt, 100000
+        )
         return pwd_hash.hex() == stored_hash

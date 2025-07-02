@@ -1,54 +1,53 @@
-from telebot import types
 from functools import wraps
+
 import requests
-from config import logger, API_URL
 from bot_instance import bot
+from config import API_URL, logger
+from telebot import types
+
 
 def get_main_keyboard():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    buttons = [
-        "ℹ️ О проекте",
-        "🔑 Войти",
-        "📝 Регистрация",
-        "🚪 Выход"
-    ]
+    buttons = ["ℹ️ О проекте", "🔑 Войти", "📝 Регистрация", "🚪 Выход"]
     keyboard.add(*buttons)
     return keyboard
+
 
 def get_main_inline_keyboard():
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(
-        types.InlineKeyboardButton("Подробнее о возможностях", callback_data='features'),
-        types.InlineKeyboardButton("Техподдержка", url='https://t.me/your_support')
+        types.InlineKeyboardButton(
+            "Подробнее о возможностях", callback_data='features'
+        ),
+        types.InlineKeyboardButton("Техподдержка", url='https://t.me/your_support'),
     )
     return markup
+
 
 def get_booking_keyboard():
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(
-        text="Записаться на диагностику",
-        callback_data="time_slots"
+        text="Записаться на диагностику", callback_data="time_slots"
     )
     btn2 = types.InlineKeyboardButton(
-        text="Посмотреть текущую запись",
-        callback_data="my_checkup_now"
+        text="Посмотреть текущую запись", callback_data="my_checkup_now"
     )
     btn3 = types.InlineKeyboardButton(
-        text="Отправить снимок",
-        callback_data="give_image"
+        text="Отправить снимок", callback_data="give_image"
     )
     markup.add(btn1, btn2)
     markup.add(btn3)
     return markup
 
+
 def get_task_keyboard():
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(
-        text="Получить результат и изображение",
-        callback_data="get_task"
+        text="Получить результат и изображение", callback_data="get_task"
     )
     markup.add(btn1)
     return markup
+
 
 def auth_required(func):
     @wraps(func)
@@ -60,17 +59,16 @@ def auth_required(func):
                 message = message
             chat_id = message.chat.id
 
-
             chat_id = str(message.chat.id)
             logger.info(f"Starting auth check for chat_id: {chat_id}")
 
             response = requests.get(
-                f"{API_URL}/user/token",
-                params={"chat_id": chat_id},
-                timeout=5
+                f"{API_URL}/user/token", params={"chat_id": chat_id}, timeout=5
             )
 
-            logger.info(f"Auth check - ChatID: {chat_id}, Status: {response.status_code}")
+            logger.info(
+                f"Auth check - ChatID: {chat_id}, Status: {response.status_code}"
+            )
 
             if response.status_code == 200:
                 data = response.json()
@@ -86,11 +84,13 @@ def auth_required(func):
                     logger.error(f"Unexpected data format: {type(data)}")
                 logger.info(f"User authorized: {data}")
 
-            bot.send_message(chat_id, f"❌ Пожалуйста, авторизуйтесь через /login")
+            bot.send_message(chat_id, "❌ Пожалуйста, авторизуйтесь через /login")
 
         except requests.exceptions.RequestException as e:
             logger.error(f"API request failed for {chat_id}: {str(e)}")
-            bot.send_message(message.chat.id, "⚠️ Ошибка соединения с сервером авторизации")
+            bot.send_message(
+                message.chat.id, "⚠️ Ошибка соединения с сервером авторизации"
+            )
         except Exception as e:
             logger.error(f"Unexpected error for {chat_id}: {str(e)}", exc_info=True)
             bot.send_message(message.chat.id, "⚠️ Внутренняя ошибка сервера")

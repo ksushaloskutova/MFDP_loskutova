@@ -1,23 +1,30 @@
-import pika
-import json
 import io
+import json
 import time
-from PIL import Image
-from config import logger
 
-from object_servise.ml_task import MLTaskAdd
-from interaction_servise import ml_task_interaction as MLTaskServise
+import pika
+from config import logger
 from database.database import session
-from rabbitmq_workers.config import RABBITMQ_USER, RABBITMQ_PASSWORD, RABBITMQ_HOST, RABBITMQ_PORT, QUEUE_NAME
+from interaction_servise import ml_task_interaction as MLTaskServise
+from object_servise.ml_task import MLTaskAdd
+from PIL import Image
+from rabbitmq_workers.config import (QUEUE_NAME, RABBITMQ_HOST,
+                                     RABBITMQ_PASSWORD, RABBITMQ_PORT,
+                                     RABBITMQ_USER)
 
 
 def create_connection(queue_name):
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-    logger.info(f"Попытка соединения с RabbitMQ на {RABBITMQ_HOST}:{RABBITMQ_PORT} как {RABBITMQ_USER}")
+    logger.info(
+        f"Попытка соединения с RabbitMQ на {RABBITMQ_HOST}:{RABBITMQ_PORT} как {RABBITMQ_USER}"
+    )
     while True:
         try:
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters(RABBITMQ_HOST, int(RABBITMQ_PORT), '/', credentials))
+                pika.ConnectionParameters(
+                    RABBITMQ_HOST, int(RABBITMQ_PORT), '/', credentials
+                )
+            )
             logger.info("Соединение успешно установлено")
 
             channel = connection.channel()
@@ -42,11 +49,13 @@ def send_task_to_queue(image_data: Image.Image, task_add):
     payload = {
         "task_id": task_add.task_id,
         "password": task_add.password,
-        "image": img_bytes.hex()
+        "image": img_bytes.hex(),
     }
 
     try:
-        channel.basic_publish(exchange='', routing_key=QUEUE_NAME, body=json.dumps(payload))
+        channel.basic_publish(
+            exchange='', routing_key=QUEUE_NAME, body=json.dumps(payload)
+        )
         logger.info(f"Задача отправлена в очередь '{QUEUE_NAME}': {payload}")
     except Exception as e:
         logger.error(f"Ошибка при отправке задачи: {e}")

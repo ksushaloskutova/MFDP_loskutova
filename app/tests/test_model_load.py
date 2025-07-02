@@ -1,5 +1,5 @@
-import pytest
 from object_servise.ml_model import MLModel
+
 
 def test_model_load(tmp_path, monkeypatch):
     """

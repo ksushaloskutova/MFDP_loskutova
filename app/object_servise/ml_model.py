@@ -1,10 +1,10 @@
-import numpy as np
-import subprocess
 import os
-from tensorflow.keras.models import load_model
+import subprocess
+
+import numpy as np
 from config import logger
-from tensorflow.keras.models import Model
-from typing import Optional
+from tensorflow.keras.models import load_model
+
 
 class MLModel:
     def __init__(self, model_name="model_name"):
@@ -29,7 +29,6 @@ class MLModel:
             logger.info("Модель успешно загружена!")
         except Exception as e:
             raise Exception(f"Ошибка при загрузке модели: {str(e)}")
-
 
     def predict(self, image_array: np.ndarray) -> str:
         if not self.is_loaded:
