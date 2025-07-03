@@ -96,3 +96,9 @@ def auth_required(func):
             bot.send_message(message.chat.id, "⚠️ Внутренняя ошибка сервера")
 
     return wrapped
+
+
+def get_auth_keyboard():
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    markup.add(types.InlineKeyboardButton("Авторизация", callback_data='start_login'))
+    return markup

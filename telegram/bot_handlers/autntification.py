@@ -1,5 +1,5 @@
 import requests
-from bot_handlers.utils import auth_required, get_booking_keyboard
+from bot_handlers.utils import auth_required, get_auth_keyboard, get_booking_keyboard
 from bot_instance import bot
 from config import API_URL, logger
 
@@ -39,6 +39,7 @@ def process_password_step(message, login, message_id):
             bot.send_message(
                 message.chat.id,
                 "✅ Регистрация успешна!\nАвторизуйтесь для дальнейших действий",
+                reply_markup=get_auth_keyboard(),
             )
         else:
             error_msg = response_data.get("detail", "Неизвестная ошибка")

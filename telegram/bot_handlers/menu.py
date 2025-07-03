@@ -1,5 +1,4 @@
-from bot_handlers.autntification import (handle_logout, start_login,
-                                         start_registration)
+from bot_handlers.autntification import handle_logout, start_login, start_registration
 from bot_handlers.utils import get_main_inline_keyboard, get_main_keyboard
 from config import THERMO_CHECK_AI_INFO
 
@@ -31,3 +30,16 @@ def setup_menu_handlers(bot):
             start_registration(message)
         elif message.text == "🚪 Выход":
             handle_logout(message)
+
+    @bot.callback_query_handler(func=lambda call: call.data == 'start_login')
+    def handle_login_callback(call):
+        # Создаем имитацию Message объекта из CallbackQuery
+        message = call.message
+        message.from_user = call.from_user
+        message.text = call.data
+
+        # Вызываем вашу функцию авторизации
+        start_login(message)
+
+        # Отправляем уведомление, что действие выполнено
+        bot.answer_callback_query(call.id, "Авторизация")

@@ -205,9 +205,15 @@ def give_image_handlers(bot_instance):
                 with BytesIO() as output:
                     img.save(output, format='JPEG')
                     output.seek(0)
-                    # Отправляем изображение
-                    bot_instance.send_photo(chat_id, photo=output)
 
+                    # Создаем новый BytesIO объект для отправки
+                    photo_to_send = BytesIO(output.getvalue())
+                    photo_to_send.seek(0)
+
+                    # Указываем имя файла (необязательно, но может помочь)
+                    photo_to_send.name = 'result.jpg'
+
+                    bot_instance.send_photo(chat_id, photo=photo_to_send)
                 # Отправляем результат
                 bot_instance.send_message(
                     chat_id,
