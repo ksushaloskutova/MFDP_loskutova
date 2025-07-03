@@ -7,10 +7,10 @@
 удалённым хранилищем s3
 - загрузить веса модели (https://www.kaggle.com/models/kseniyaloskutova/thermocheckai_model_final_vgg16)) в папку model, dvc add model, dvc push model
 - в bot_father создать бота и рописать его апи в telegram/bot_handlers/config
-- запустить сборку контейнеров docker (запуск 3х экземпляров api при необходимости): docker-compose up --build --scale 
-  api=3
+- запустить сборку контейнеров docker (запуск 3х экземпляров worker при необходимости): docker-compose up --build --scale 
+  worker=3
 - для взаимодействия с API перейти по ссылке: http://localhost/
-- для взаимодействия через telegram ткрыть бота и нажать /start ли /help.
+- для взаимодействия через telegram jткрыть бота и нажать /start ли /help.
 
 Основной функционал приложения:
 - получение информации о проекте
@@ -31,4 +31,3 @@
 
 Для запуска тестов можно войти в запущенный контейнер: docker exec -it MFDP_app bash
 И запустить тесты: pytest tests.
-Оформление - приведу в порядок ещё.
